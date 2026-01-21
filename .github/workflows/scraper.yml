@@ -14,24 +14,28 @@ jobs:
   scrape:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.9'
-          
+          cache: 'pip' # Caches dependencies to make runs faster
+
       - name: Install libraries
         run: pip install -r requirements.txt
-        
+
       - name: Run Scraper
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: python main.py
-        
+
       - name: Save History
         run: |
           git config --global user.name "JobBot"
           git config --global user.email "bot@noreply.github.com"
+          # MAKE SURE THIS FILENAME MATCHES WHAT YOUR PYTHON SCRIPT SAVES
           git add job_history.json
+          # The next line checks if there are changes before trying to commit
           git diff --quiet && git diff --staged --quiet || (git commit -m "Update history" && git push)
