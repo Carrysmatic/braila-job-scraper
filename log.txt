@@ -1,0 +1,24 @@
+[17:32:00] --- Job Scraper Started ---
+[17:32:00] Checking mai_braila...
+[17:32:01] Checking anp_concursuri...
+[17:32:02] Checking mapn_civil...
+[17:32:02] Checking spital_braila...
+[17:32:03] !!! NEW: Rezultat final concurs medic specialist -Sectia neonatologie
+[17:32:03] !!! NEW: Rezultat final concurs medici rezidenti anul V - ATI III
+[17:32:03] !!! NEW: Rezultat concurs proba clinica si final - Medic sef sectie pediatrie
+[17:32:03] !!! NEW: Rezultat proba scrisa concurs medic sef - Pediatrie
+[17:32:03] !!! NEW: Rezultat proba interviu concurs medic sef - Pediatrie
+Traceback (most recent call last):
+  File "D:\Proiect\job_scrapper\braila-job-scraper\main.py", line 214, in <module>
+    main()
+    ~~~~^^
+  File "D:\Proiect\job_scrapper\braila-job-scraper\main.py", line 191, in main
+    log(f"!!! NEW: {job_data['title']}")
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Proiect\job_scrapper\braila-job-scraper\main.py", line 33, in log
+    print(f"[{timestamp}] {message}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u0163' in position 25: character maps to <undefined>
