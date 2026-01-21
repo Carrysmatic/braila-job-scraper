@@ -35,7 +35,10 @@ jobs:
         run: |
           git config --global user.name "JobBot"
           git config --global user.email "bot@noreply.github.com"
-          # MAKE SURE THIS FILENAME MATCHES WHAT YOUR PYTHON SCRIPT SAVES
-          git add job_history.json
-          # The next line checks if there are changes before trying to commit
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Update history" && git push)
+          
+          # Force add the file in case .gitignore is blocking it
+          git add -f job_history.json
+          
+          # Commit and push (with error logging)
+          git commit -m "Update job history" || echo "No changes to commit"
+          git push
