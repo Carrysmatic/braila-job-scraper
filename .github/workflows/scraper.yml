@@ -1,0 +1,37 @@
+name: Job Scraper
+
+on:
+  schedule:
+    # Runs at 7:00, 11:00, 15:00, 19:00 UTC 
+    # (Which is approx 9AM, 1PM, 5PM, 9PM Romania time)
+    - cron: '0 7,11,15,19 * * *'
+  workflow_dispatch: # Allows manual run button
+
+permissions:
+  contents: write
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          
+      - name: Install libraries
+        run: pip install -r requirements.txt
+        
+      - name: Run Scraper
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: python main.py
+        
+      - name: Save History
+        run: |
+          git config --global user.name "JobBot"
+          git config --global user.email "bot@noreply.github.com"
+          git add job_history.json
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update history" && git push)
