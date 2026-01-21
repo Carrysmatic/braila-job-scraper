@@ -36,9 +36,17 @@ jobs:
           git config --global user.name "JobBot"
           git config --global user.email "bot@noreply.github.com"
           
-          # Force add the file in case .gitignore is blocking it
-          git add -f job_history.json
+          # 1. Pull latest changes to avoid conflicts
+          git pull origin HEAD --rebase || echo "Nothing to pull"
           
-          # Commit and push (with error logging)
-          git commit -m "Update job history" || echo "No changes to commit"
-          git push
+          # 2. Force add the file
+          git add job_history.json
+          
+          # 3. Check status (for debugging logs)
+          git status
+          
+          # 4. Commit with a timestamp so every commit is unique
+          git commit -m "Update history - $(date)" || echo "No changes to commit"
+          
+          # 5. Push explicitly to the current branch
+          git push origin HEAD
