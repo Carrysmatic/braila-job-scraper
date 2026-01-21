@@ -1,0 +1,126 @@
+[
+  {
+    "id": "mai_braila",
+    "url": "https://hub.mai.gov.ro/cariera?AnuntSearch%5Btitlu%5D=&AnuntSearch%5Bid_nom_nivel_functie%5D=&AnuntSearch%5Bid_nom_judet%5D=9&AnuntSearch%5Bid_nom_statut_profesional%5D=&AnuntSearch%5Bid_nom_arma%5D=&AnuntSearch%5Bvalabil%5D=&AnuntSearch%5Bincadrare%5D=",
+    "selector": "div.list-view > div[data-key]",
+    "attribute": "data-key",
+    "title_selector": "h3",
+    "note": "Tracks unique DB IDs, but grabs H5 text for the alert"
+  },
+  {
+    "id": "anp_concursuri",
+    "url": "https://anp.gov.ro/cariera/concursuri-din-sursa-externa/concursuri-curs-de-derulare/",
+    "selector": ".entry-content p a",
+    "attribute": "href",
+    "title_selector": "", 
+    "note": "Tracks the Links (href) inside the main article content"
+  },
+  {
+    "id": "mapn_civil",
+    "url": "https://dgmru.mapn.ro/pages/anunturi",
+    "selector": "h4:nth-of-type(2) + div a",
+    "attribute": "href",
+    "note": "Finds the 2nd H4 header, jumps to the adjacent Div, and grabs links"
+  },
+  {
+    "id": "spital_braila",
+    "url": "http://www.spitalbraila.ro/cariere.html",
+    "selector": "a[href*='docs/Cariere']",
+    "attribute": "href",
+    "note": "Tracks any link that points to the internal 'docs/Cariere' folder"
+  },
+  {
+    "id": "primaria_braila",
+    "url": "https://www.primariabraila.ro/cariera",
+    "selector": "article[data-id]",
+    "attribute": "data-id",
+    "title_selector": "h2.eael-entry-title a",
+    "note": "Tracks the unique data-id on the article tag"
+  },
+  {
+    "id": "portal_just_galati",
+    "url": "https://portal.just.ro/44/SitePages/concursuri.aspx?id_inst=44",
+    "selector": "td[id*='WebPartWPQ2'] a",
+    "attribute": "href",
+    "note": "Tracks all links inside the main SharePoint content box"
+  },
+  {
+    "id": "evpop_braila",
+    "url": "https://www.evpopbr.ro/interes_public/cariera.html",
+    "selector": "#content a[href$='.pdf']",
+    "attribute": "href",
+    "note": "Tracks all PDF links inside the main content area"
+  },
+  {
+    "id": "ajpis_braila",
+    "url": "https://braila.mmanpis.ro/despre-ajpis/cariera/",
+    "selector": ".entry-content a",
+    "attribute": "href",
+    "note": "Standard WordPress structure, tracks links in the main body"
+  },
+  {
+    "id": "ancpi_braila",
+    "url": "https://www.ancpi.ro/ocpi/br/cariera/",
+    "selector": ".gdlr-core-page-builder-body a",
+    "attribute": "href",
+    "note": "Tracks all links inside the main page builder content"
+  },
+  {
+    "id": "primaria_braila_angajari",
+    "url": "https://www.primariabraila.ro/arhive/category/angajari",
+    "selector": "div[id^='post-']",
+    "attribute": "id",
+    "title_selector": "h2.entry-title a",
+    "note": "Tracks the unique WordPress ID (post-XXXX) for each entry"
+  },
+  {
+    "id": "anp_derulare",
+    "url": "https://anp.gov.ro/cariera/concursuri-din-sursa-externa/concursuri-curs-de-derulare/",
+    "selector": ".entry-content a:not(.return-home-link)",
+    "attribute": "href",
+    "note": "Selects all content links but explicitly ignores the 'Back to Home' button"
+  },
+  {
+    "id": "politia_frontiera",
+    "url": "https://www.politiadefrontiera.ro/ro/main/pg-cariera-32.html",
+    "selector": ".article-compact a",
+    "attribute": "href",
+    "title_selector": "span.compact_title",
+    "note": "Tracks the unique link for each job article"
+  },
+  {
+    "id": "jandarmeria_braila",
+    "url": "https://www.jandarmeria-braila.ro/cariera.html",
+    "selector": "a.ImCssLink",
+    "attribute": "href",
+    "note": "Tracks links with the specific builder class 'ImCssLink'"
+  },
+  {
+    "id": "ipj_braila",
+    "url": "https://br.politiaromana.ro/ro/cariera/posturi-scoase-la-concurs",
+    "selector": ".boxStireTitle a",
+    "attribute": "href",
+    "note": "Tracks the specific job link inside the news box title"
+  },
+  {
+    "id": "dgaspc_braila",
+    "url": "https://dgaspcbraila.ro/v1/cariera/",
+    "selector": "h5.ui-blog-title a",
+    "attribute": "href",
+    "note": "Tracks the main post Title (permalink) to ensure 1 notification per job"
+  },
+  {
+    "id": "anofm_braila",
+    "url": "https://mediere.anofm.ro/api/entity/vw_public_job_posting?county_id=10",
+    "selector": "json",
+    "attribute": "json",
+    "note": "Direct API access to ANOFM database filtered for Braila (county_id 10)"
+  },
+  {
+    "id": "ejobs_braila_galati",
+    "url": "https://www.ejobs.ro/locuri-de-munca/braila,galati/sort-publish",
+    "selector": "h2.job-card-content-title a",
+    "attribute": "href",
+    "note": "Commercial site. Tracks the main title links. Sorted by Newest."
+  }
+]
