@@ -1,164 +1,214 @@
-
+import requests
+from bs4 import BeautifulSoup
+import json
 import os
-# ... other imports ...
+import time
+from datetime import datetime
+import urllib3
 
 # 1. SETUP & CONFIGURATION
 # ---------------------------------------------------------
-# SECURITY UPDATE: Read from GitHub Secrets (Environment Variable)
+# SECURITY: Read the Webhook from GitHub Secrets (Environment Variable)
 DISCORD_WEBHOOK_URL = os.environ.get("DISCORD_WEBHOOK_URL")
 
-SITES_FILE = 'sites.json'
 HISTORY_FILE = "job_history.json"
-# ... rest of the script remains the same ...
+SITES_FILE = "sites.json"
+
+# Headers to look like a real Human on Windows 10
+HEADERS = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+    'Accept-Language': 'ro-RO,ro;q=0.9,en-US;q=0.8,en;q=0.7',
+    'Referer': 'https://www.google.ro/',
+    'Upgrade-Insecure-Requests': '1'
+}
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+# 2. HELPER FUNCTIONS
+# ---------------------------------------------------------
+def log(message):
+    """Prints a message with a timestamp."""
+    timestamp = datetime.now().strftime('%H:%M:%S')
+    print(f"[{timestamp}] {message}")
 
 def load_json(filename):
-    """Loads JSON data safely."""
-    if not os.path.exists(filename):
-        return {} if filename == HISTORY_FILE else []
-    try:
-        with open(filename, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except (json.JSONDecodeError, ValueError):
-        return {} if filename == HISTORY_FILE else []
+    """Safely loads a JSON file with UTF-8 encoding."""
+    if os.path.exists(filename):
+        with open(filename, "r", encoding="utf-8") as f:
+            try:
+                return json.load(f)
+            except json.JSONDecodeError:
+                return {} if filename == HISTORY_FILE else []
+    return {} if filename == HISTORY_FILE else []
 
 def save_history(history):
-    """Saves the current state."""
-    with open(HISTORY_FILE, 'w', encoding='utf-8') as f:
+    """Saves history with UTF-8 encoding (Fixes Romanian characters)."""
+    with open(HISTORY_FILE, "w", encoding="utf-8") as f:
         json.dump(history, f, indent=4, ensure_ascii=False)
 
-def check_website(site, history):
-    site_id = site['id']
-    url = site['url']
-    selector = site['selector']
-    target_attr = site.get('attribute', 'text') # Default to text if not specified
+def send_discord_summary(job_list):
+    """Sends a single summary message with all jobs found."""
+    if not DISCORD_WEBHOOK_URL:
+        log("   [!] Alert skipped (No Webhook Configured)")
+        return
 
-    print(f"[{datetime.now().strftime('%H:%M:%S')}] Checking {site_id}...")
+    log(f"   >>> Sending Summary to Discord ({len(job_list)} jobs)...")
 
-    # Site-specific SSL verification bypass
+    # Discord has a 2000 char limit.
+    header = f"**📢 Braila Job Update** - {datetime.now().strftime('%d/%m %H:%M')}\n"
+    header += f"Found **{len(job_list)}** new opportunities:\n\n"
+    
+    current_message = header
+    
+    for job in job_list:
+        line = f"• **{job['site']}**: [{job['title']}]({job['link']})\n"
+        
+        # Check limit (leave 100 chars buffer)
+        if len(current_message) + len(line) > 1900:
+            _post_to_discord(current_message)
+            current_message = line 
+        else:
+            current_message += line
+            
+    if current_message:
+        _post_to_discord(current_message)
+
+def _post_to_discord(content):
+    data = {"username": "Job Bot Braila", "content": content}
+    try:
+        requests.post(DISCORD_WEBHOOK_URL, json=data)
+        time.sleep(1)
+    except Exception as e:
+        log(f"Failed to send Discord chunk: {e}")
+
+# 3. CORE LOGIC
+# ---------------------------------------------------------
+def check_website(site_config):
+    site_id = site_config["id"]
+    url = site_config["url"]
+    current_items = {} 
+
+    log(f"Checking {site_id}...")
+    
     verify_ssl = True
-    if site_id == "portal_just_galati":
+    if site_id in ["portal_just_galati", "evpop_braila", "anofm_braila"]:
         verify_ssl = False
 
     try:
-        # Request with SSL verification disabled for specific sites
-        response = requests.get(url, headers=HEADERS, timeout=15, verify=verify_ssl)
+        response = requests.get(url, headers=HEADERS, timeout=25, verify=verify_ssl)
+        
+        if response.status_code in [403, 503]:
+            log(f"   [!] BLOCKED by {site_id}")
+            return {}
+            
         response.raise_for_status()
 
-        # --- UPDATED: ROBUST JSON HANDLING ---
-        # We check if it is the ANOFM site OR if the headers say JSON
+        # JSON Handling (ANOFM)
         is_json_site = (site_id == "anofm_braila")
         is_json_header = "application/json" in response.headers.get("Content-Type", "")
 
         if is_json_site or is_json_header:
             try:
                 data = response.json()
-                # DEBUG: Uncomment the next line if you want to see how many items downloaded
-                print(f"DEBUG: Downloaded {len(data)} items from {site_id}")
-                current_items = {}
+                # ANOFM usually returns a list
                 if isinstance(data, list):
                     for job in data:
-                        # SAFETY FIX: Convert both to string to handle 10 vs "10"
-                        # We use '10' for Braila.
                         c_id = str(job.get('county_id', ''))
-                        if c_id == '10': 
+                        if c_id == '10': # Braila
                             job_id = str(job.get('id'))
-                            # Build the title
                             t_occ = job.get('occupation') or "Job"
                             t_emp = job.get('employer_name') or ""
-                            job_title = f"{t_occ} - {t_emp}"
-                            # Static link since API items don't have pages
-                            job_link = "https://mediere.anofm.ro/app/module/mediere/jobs"
+                            title = f"{t_occ} - {t_emp}"
+                            link = "https://mediere.anofm.ro/app/module/mediere/jobs"
                             if job_id:
-                                current_items[job_id] = job_title
-                    return current_items
+                                current_items[job_id] = {"title": title, "link": link}
+                return current_items
             except ValueError:
-                # If response.json() fails, it wasn't JSON. Ignore and fall through to HTML.
-                pass
-        # --- END UPDATED JSON HANDLING ---
+                pass 
 
-        # Normal HTML parsing for all other websites
+        # HTML Handling
         soup = BeautifulSoup(response.content, 'html.parser')
-        # DEBUG: Print the page title to see if we are blocked
-        if "ejobs" in site_id:
+        elements = soup.select(site_config["selector"])
+        
+        for el in elements:
+            item_id = None
+            item_link = url
+            item_title = "New Update"
+
+            attr_type = site_config.get("attribute")
+
+            if attr_type == "href":
+                item_id = el.get("href")
+                item_link = item_id
+                if item_id and not item_id.startswith("http"):
+                    base_url = "/".join(url.split("/")[:3]) 
+                    item_link = base_url + item_id
+                    item_id = item_link
+            elif attr_type == "id":
+                item_id = el.get("id")
+            elif attr_type == "data-id":
+                item_id = el.get("data-id")
+            elif attr_type == "json":
+                continue
+
+            if site_config.get("title_selector"):
+                title_el = el.select_one(site_config["title_selector"])
+                if title_el:
+                    item_title = title_el.get_text(strip=True)
+            else:
+                item_title = el.get_text(strip=True)[:100]
+
+            if item_id:
+                current_items[item_id] = {"title": item_title, "link": item_link}
+
     except Exception as e:
-        print(f"   ❌ Error: {e}")
+        log(f"Error checking {site_id}: {e}")
+    
+    return current_items
+
+# 4. MAIN LOOP
+# ---------------------------------------------------------
+def main():
+    if not os.path.exists(SITES_FILE):
+        log("Error: sites.json not found.")
         return
 
-    elements = soup.select(selector)
-    # 1. Build a dictionary of {ID: Title} for the current page
-    current_items = {}
-    for el in elements:
-        # A. Extract the unique ID (key)
-        if target_attr == 'text':
-            key = el.get_text().strip()
-        else:
-            key = el.get(target_attr)
-        if not key:
-            continue  # Skip if empty
-        # Decode URL-encoded characters in key
-        key = unquote(key)
-
-        # B. Extract a readable title for the notification (Optional)
-        # Only search if title_selector is present and not empty
-        readable_title = key
-        if 'title_selector' in site and site['title_selector']:
-            title_el = el.select_one(site['title_selector'])
-            if title_el:
-                readable_title = title_el.get_text().strip()
-        # Decode URL-encoded characters in title
-        readable_title = unquote(readable_title)
-
-        current_items[key] = readable_title
-
-
-    # 2. Compare with History
-    # Support both list and dict formats for backward compatibility
-    old_data = history.get(site_id, {})
-    if isinstance(old_data, list):
-        old_keys = old_data
-    else:
-        old_keys = list(old_data.keys())
-
-    # Find keys that are in current_items but NOT in old_keys
-    new_keys = [k for k in current_items if k not in old_keys]
-
-    if new_keys:
-        print(f"   🚨 FOUND {len(new_keys)} NEW UPDATES!")
-        for key in new_keys:
-            title = current_items[key]
-            print(f"      👉 New: {title} (ID: {key})")
-            
-            # --- SEND NOTIFICATION HERE ---
-            # send_email(f"New Job: {title}", url)
-            
-    else:
-        print(f"   ✅ No changes (tracked {len(current_items)} items)")
-
-    # 3. Save the new list of keys to history
-    # We only save the keys (IDs), not the titles, to keep the file clean
-    history[site_id] = current_items
-
-def main():
     sites = load_json(SITES_FILE)
     history = load_json(HISTORY_FILE)
+    daily_digest = [] 
 
-    if not sites:
-        print("⚠️ No sites found in sites.json")
-        return
-
-
+    log("--- Job Scraper Started ---")
+    
     for site in sites:
-        check_website(site, history)
-
-    # Cap history (Keep the FIRST 15 items, which are usually the newest/top of page)
-    for site_id in history:
-        site_history = history[site_id]
-        if isinstance(site_history, dict) and len(site_history) > 15:
-            # [:15] keeps the first 15. [-15:] keeps the last 15.
-            capped_items = dict(list(site_history.items())[:15]) 
-            history[site_id] = capped_items 
+        site_id = site["id"]
+        current_jobs = check_website(site)
+        
+        old_jobs = history.get(site_id, {})
+        
+        for job_id, job_data in current_jobs.items():
+            if job_id not in old_jobs:
+                log(f"!!! NEW: {job_data['title']}")
+                daily_digest.append({
+                    "site": site_id,
+                    "title": job_data['title'],
+                    "link": job_data['link']
+                })
+        
+        # Save Max 500 items per site (Safe buffer to prevent duplicate alerts)
+        if len(current_jobs) > 500:
+            # Keep the first 500 (newest)
+            limited_jobs = dict(list(current_jobs.items())[:500])
+            history[site_id] = limited_jobs
+        else:
+            history[site_id] = current_jobs
 
     save_history(history)
+    
+    if daily_digest:
+        send_discord_summary(daily_digest)
+    else:
+        log("No new jobs found.")
 
 if __name__ == "__main__":
     main()
