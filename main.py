@@ -7,10 +7,10 @@ import sys
 from datetime import datetime
 import urllib3
 
-# 0. CRITICAL FIX FOR WINDOWS CONSOLE
+# 0. FIX WINDOWS CONSOLE
 sys.stdout.reconfigure(encoding='utf-8')
 
-# 1. SETUP & CONFIGURATION
+# 1. SETUP
 WEBHOOK_FROM_ENV = os.environ.get("DISCORD_WEBHOOK_URL")
 WEBHOOK_FOR_TESTING = "" 
 DISCORD_WEBHOOK_URL = WEBHOOK_FROM_ENV or WEBHOOK_FOR_TESTING
@@ -40,9 +40,19 @@ def load_json(filename):
     if os.path.exists(filename):
         with open(filename, "r", encoding="utf-8") as f:
             try:
-                return json.load(f)
+                data = json.load(f)
+                # --- DEBUG PRINT ---
+                if filename == HISTORY_FILE:
+                    count = 0
+                    for site, jobs in data.items():
+                        count += len(jobs)
+                    log(f"   [DEBUG] MEMORY CHECK: Loaded {count} jobs from history.")
+                # -------------------
+                return data
             except json.JSONDecodeError:
+                log(f"   [DEBUG] ERROR: {filename} is corrupted or empty.")
                 return {} if filename == HISTORY_FILE else []
+    log(f"   [DEBUG] WARNING: {filename} not found.")
     return {} if filename == HISTORY_FILE else []
 
 def save_history(history):
@@ -115,7 +125,7 @@ def check_website(site_config):
         
         if response.status_code in [403, 503]:
             log(f"   [!] BLOCKED by {site_id}")
-            return None # Return None to indicate failure, not just empty
+            return None 
             
         response.raise_for_status()
 
@@ -179,11 +189,11 @@ def check_website(site_config):
 
     except Exception as e:
         log(f"Error checking {site_id}: {e}")
-        return None # Return None on error so we don't wipe history
+        return None 
     
     return current_items
 
-# 4. MAIN LOOP (FIXED LOGIC)
+# 4. MAIN LOOP
 def main():
     if not os.path.exists(SITES_FILE):
         log("Error: sites.json not found.")
@@ -198,20 +208,17 @@ def main():
     for site in sites:
         site_id = site["id"]
         
-        # Ensure history entry exists
         if site_id not in history:
             history[site_id] = {}
 
         current_jobs = check_website(site)
         
-        # FAIL-SAFE: If scrape failed (None), skip updating history
         if current_jobs is None:
             log(f"   [!] Skipping history update for {site_id} due to error.")
             continue
         
         old_jobs = history[site_id]
         
-        # Check for new items
         for job_id, job_data in current_jobs.items():
             if job_id not in old_jobs:
                 log(f"!!! NEW: {job_data['title']}")
@@ -221,8 +228,6 @@ def main():
                     "link": job_data['link']
                 })
         
-        # MERGE new jobs into history instead of overwriting
-        # This keeps old jobs in memory even if they temporarily disappear
         history[site_id].update(current_jobs)
 
     save_history(history)
