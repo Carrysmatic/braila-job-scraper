@@ -8,20 +8,11 @@ from datetime import datetime
 import urllib3
 
 # 0. CRITICAL FIX FOR WINDOWS CONSOLE
-# ---------------------------------------------------------
-# Forces Python to use UTF-8 for printing, preventing crashes on 'ț' or 'ș'
 sys.stdout.reconfigure(encoding='utf-8')
 
 # 1. SETUP & CONFIGURATION
-# ---------------------------------------------------------
-
-# OPTION A: For GitHub Actions (Reads from Secrets)
 WEBHOOK_FROM_ENV = os.environ.get("DISCORD_WEBHOOK_URL")
-
-# OPTION B: For Local PC Testing (Keep empty for safety)
 WEBHOOK_FOR_TESTING = "" 
-
-# The script automatically chooses the right one
 DISCORD_WEBHOOK_URL = WEBHOOK_FROM_ENV or WEBHOOK_FOR_TESTING
 
 HISTORY_FILE = "job_history.json"
@@ -38,18 +29,14 @@ HEADERS = {
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # 2. HELPER FUNCTIONS
-# ---------------------------------------------------------
 def log(message):
-    """Prints a message with a timestamp."""
     timestamp = datetime.now().strftime('%H:%M:%S')
     try:
         print(f"[{timestamp}] {message}")
     except UnicodeEncodeError:
-        # Fallback if the console is completely broken
         print(f"[{timestamp}] (Message contained special characters)")
 
 def load_json(filename):
-    """Safely loads a JSON file with UTF-8 encoding."""
     if os.path.exists(filename):
         with open(filename, "r", encoding="utf-8") as f:
             try:
@@ -59,19 +46,15 @@ def load_json(filename):
     return {} if filename == HISTORY_FILE else []
 
 def save_history(history):
-    """Saves history with UTF-8 encoding (Fixes Romanian characters)."""
     with open(HISTORY_FILE, "w", encoding="utf-8") as f:
         json.dump(history, f, indent=4, ensure_ascii=False)
 
 def send_discord_summary(job_list):
-    """Sends a summary message, capped at 15 items to prevent spam."""
     if not DISCORD_WEBHOOK_URL:
         log("   [!] Alert skipped (No Webhook Configured)")
         return
 
     total_found = len(job_list)
-    
-    # --- ANTI-SPAM SETTINGS ---
     MAX_DISPLAY = 15
     
     if total_found > MAX_DISPLAY:
@@ -82,9 +65,8 @@ def send_discord_summary(job_list):
         display_list = job_list
         footer_note = ""
 
-    log(f"   >>> Sending Summary to Discord ({total_found} jobs found, showing top {len(display_list)})...")
+    log(f"   >>> Sending Summary to Discord ({total_found} jobs found)...")
 
-    # Build the Message
     header = f"**📢 Braila Job Update** - {datetime.now().strftime('%d/%m %H:%M')}\n"
     header += f"Found **{total_found}** new opportunities:\n\n"
     
@@ -92,15 +74,12 @@ def send_discord_summary(job_list):
     
     for job in display_list:
         line = f"• **{job['site']}**: [{job['title']}]({job['link']})\n"
-        
-        # Check limit (Discord max 2000 chars)
         if len(current_message) + len(line) > 1900:
             _post_to_discord(current_message)
             current_message = line 
         else:
             current_message += line
             
-    # Add the "And X more" footer if needed
     if footer_note:
         if len(current_message) + len(footer_note) > 1900:
              _post_to_discord(current_message)
@@ -120,7 +99,6 @@ def _post_to_discord(content):
         log(f"Failed to send Discord chunk: {e}")
 
 # 3. CORE LOGIC
-# ---------------------------------------------------------
 def check_website(site_config):
     site_id = site_config["id"]
     url = site_config["url"]
@@ -137,23 +115,20 @@ def check_website(site_config):
         
         if response.status_code in [403, 503]:
             log(f"   [!] BLOCKED by {site_id}")
-            return {}
+            return None # Return None to indicate failure, not just empty
             
         response.raise_for_status()
 
-        # --- JSON Handling for ANOFM ---
+        # --- JSON Handling ---
         is_json_site = (site_id == "anofm_braila")
         is_json_header = "application/json" in response.headers.get("Content-Type", "")
 
         if is_json_site or is_json_header:
             try:
                 data = response.json()
-                
-                # 1. Handle "Hydra" API wrapper
                 if isinstance(data, dict) and 'hydra:member' in data:
                     data = data['hydra:member']
                 
-                # 2. Handle standard list
                 if isinstance(data, list):
                     for job in data:
                         c_id = str(job.get('county_id', ''))
@@ -162,16 +137,14 @@ def check_website(site_config):
                             t_occ = job.get('occupation') or "Job"
                             t_emp = job.get('employer_name') or ""
                             title = f"{t_occ} - {t_emp}"
-                            # Dynamic link if possible
                             link = f"https://mediere.anofm.ro/app/module/mediere/jobs/{job_id}"
                             if job_id:
                                 current_items[job_id] = {"title": title, "link": link}
                 return current_items
             except ValueError:
                 pass 
-        # ---------------------------------------
 
-        # HTML Handling
+        # --- HTML Handling ---
         soup = BeautifulSoup(response.content, 'html.parser')
         elements = soup.select(site_config["selector"])
         
@@ -193,8 +166,6 @@ def check_website(site_config):
                 item_id = el.get("id")
             elif attr_type == "data-id":
                 item_id = el.get("data-id")
-            elif attr_type == "json":
-                continue
 
             if site_config.get("title_selector"):
                 title_el = el.select_one(site_config["title_selector"])
@@ -208,11 +179,11 @@ def check_website(site_config):
 
     except Exception as e:
         log(f"Error checking {site_id}: {e}")
+        return None # Return None on error so we don't wipe history
     
     return current_items
 
-# 4. MAIN LOOP
-# ---------------------------------------------------------
+# 4. MAIN LOOP (FIXED LOGIC)
 def main():
     if not os.path.exists(SITES_FILE):
         log("Error: sites.json not found.")
@@ -226,10 +197,21 @@ def main():
     
     for site in sites:
         site_id = site["id"]
+        
+        # Ensure history entry exists
+        if site_id not in history:
+            history[site_id] = {}
+
         current_jobs = check_website(site)
         
-        old_jobs = history.get(site_id, {})
+        # FAIL-SAFE: If scrape failed (None), skip updating history
+        if current_jobs is None:
+            log(f"   [!] Skipping history update for {site_id} due to error.")
+            continue
         
+        old_jobs = history[site_id]
+        
+        # Check for new items
         for job_id, job_data in current_jobs.items():
             if job_id not in old_jobs:
                 log(f"!!! NEW: {job_data['title']}")
@@ -239,12 +221,9 @@ def main():
                     "link": job_data['link']
                 })
         
-        # Save Max 1000 items per site
-        if len(current_jobs) > 1000:
-            limited_jobs = dict(list(current_jobs.items())[:1000])
-            history[site_id] = limited_jobs
-        else:
-            history[site_id] = current_jobs
+        # MERGE new jobs into history instead of overwriting
+        # This keeps old jobs in memory even if they temporarily disappear
+        history[site_id].update(current_jobs)
 
     save_history(history)
     

@@ -5535,7 +5535,12 @@
             "link": "https://www.evpopbr.ropdf/rezultat_interviu_14102025.pdf"
         }
     },
-    "ajpis_braila": {},
+    "ajpis_braila": {
+        "https://braila.mmanpis.ro/wp-content/uploads/2025/04/REZULTAT-SELECTIE-DOSAR-CONCURS-RECRUTARE-INSPECTOR.pdf": {
+            "title": "REZULTAT SELECTIE DOSAR CONCURS RECRUTARE INSPECTOR",
+            "link": "https://braila.mmanpis.ro/wp-content/uploads/2025/04/REZULTAT-SELECTIE-DOSAR-CONCURS-RECRUTARE-INSPECTOR.pdf"
+        }
+    },
     "ancpi_braila": {
         "https://www.ancpi.ro/ocpi/br/wp-content/uploads/2023/03/Procedura-organizare-concursuri-OCPI-Braila.pdf": {
             "title": "PROCEDURA ORGANIZARE CONCURSURI",
@@ -5922,7 +5927,78 @@
             "link": "https://br.politiaromana.ro/ro/cariera/posturi-scoase-la-concurs/anunt-programare-evaluare-psihologica-candidati-concurs-sef-post-i-la-ppc-vadeni-sectia-1-de-politie-rurala-braila"
         }
     },
-    "dgaspc_braila": {},
+    "dgaspc_braila": {
+        "https://dgaspcbraila.ro/v1/2026/01/16/rezultat-proba-scrisa-4/": {
+            "title": "Rezultat proba scrisa",
+            "link": "https://dgaspcbraila.ro/v1/2026/01/16/rezultat-proba-scrisa-4/"
+        },
+        "https://dgaspcbraila.ro/v1/wp-content/uploads/2026/01/Rezultat-proba-scrisa.pdf": {
+            "title": "Rezultat proba scrisa",
+            "link": "https://dgaspcbraila.ro/v1/wp-content/uploads/2026/01/Rezultat-proba-scrisa.pdf"
+        },
+        "https://dgaspcbraila.ro/v1/2026/01/16/barem-corectare/": {
+            "title": "Barem corectare",
+            "link": "https://dgaspcbraila.ro/v1/2026/01/16/barem-corectare/"
+        },
+        "https://dgaspcbraila.ro/v1/wp-content/uploads/2026/01/Barem-corectare-1.pdf": {
+            "title": "Barem corectare",
+            "link": "https://dgaspcbraila.ro/v1/wp-content/uploads/2026/01/Barem-corectare-1.pdf"
+        },
+        "https://dgaspcbraila.ro/v1/2026/01/09/borderou-selectie-dosare/": {
+            "title": "Borderou selectie dosare",
+            "link": "https://dgaspcbraila.ro/v1/2026/01/09/borderou-selectie-dosare/"
+        },
+        "https://dgaspcbraila.ro/v1/wp-content/uploads/2026/01/Borderou-selectie-dosare.pdf": {
+            "title": "Borderou selectie dosare",
+            "link": "https://dgaspcbraila.ro/v1/wp-content/uploads/2026/01/Borderou-selectie-dosare.pdf"
+        },
+        "https://dgaspcbraila.ro/v1/2025/12/24/rezultat-final-inspector-de-specialiate-ii/": {
+            "title": "Rezultat final inspector de specialiate II",
+            "link": "https://dgaspcbraila.ro/v1/2025/12/24/rezultat-final-inspector-de-specialiate-ii/"
+        },
+        "https://dgaspcbraila.ro/v1/wp-content/uploads/2025/12/REZULTAT-FINAL-INSPECTOR-DE-SPECIALITATE-II.pdf": {
+            "title": "Rezultat final inspector de specialiate II",
+            "link": "https://dgaspcbraila.ro/v1/wp-content/uploads/2025/12/REZULTAT-FINAL-INSPECTOR-DE-SPECIALITATE-II.pdf"
+        },
+        "https://dgaspcbraila.ro/v1/2025/12/22/rezultat-interviu-inspector-de-specialiate-ii/": {
+            "title": "Rezultat interviu inspector de specialiate II",
+            "link": "https://dgaspcbraila.ro/v1/2025/12/22/rezultat-interviu-inspector-de-specialiate-ii/"
+        },
+        "https://dgaspcbraila.ro/v1/wp-content/uploads/2025/12/rezultat-interviu-inspector-de-specialiate-II.pdf": {
+            "title": "Rezultat interviu inspector de specialiate II",
+            "link": "https://dgaspcbraila.ro/v1/wp-content/uploads/2025/12/rezultat-interviu-inspector-de-specialiate-II.pdf"
+        },
+        "https://dgaspcbraila.ro/v1/2025/12/17/anunt-concurs-16-22-ianuarie-2026/": {
+            "title": "Anunt concurs 16 22 ianuarie 2026",
+            "link": "https://dgaspcbraila.ro/v1/2025/12/17/anunt-concurs-16-22-ianuarie-2026/"
+        },
+        "https://dgaspcbraila.ro/v1/wp-content/uploads/2025/12/Anunt-concurs-16-22-ianuarie-2026.pdf": {
+            "title": "Anunt concurs 16 22 ianuarie 2026",
+            "link": "https://dgaspcbraila.ro/v1/wp-content/uploads/2025/12/Anunt-concurs-16-22-ianuarie-2026.pdf"
+        }
+    },
     "anofm_braila": {},
-    "ejobs_braila_galati": {}
+    "ejobs_braila_galati": {},
+    "posturi_gov_braila": {
+        "https://posturi.gov.ro/anunt/asistent-social-debutant-3-posturi-3/": {
+            "title": "Asistent social debutant – 3 posturi",
+            "link": "https://posturi.gov.ro/anunt/asistent-social-debutant-3-posturi-3/"
+        },
+        "https://posturi.gov.ro/anunt/economist-131/": {
+            "title": "economist",
+            "link": "https://posturi.gov.ro/anunt/economist-131/"
+        },
+        "https://posturi.gov.ro/anunt/sofer-512/": {
+            "title": "SOFER",
+            "link": "https://posturi.gov.ro/anunt/sofer-512/"
+        },
+        "https://posturi.gov.ro/anunt/medic-specialist-medic-specialist-stomatolog-asistent-medical-principal/": {
+            "title": "Medic specialist, Medic specialist stomatolog, Asistent medical principal",
+            "link": "https://posturi.gov.ro/anunt/medic-specialist-medic-specialist-stomatolog-asistent-medical-principal/"
+        },
+        "https://posturi.gov.ro/anunt/administrator-de-patrimoniu-317/": {
+            "title": "ADMINISTRATOR DE PATRIMONIU (anunț re-rectificat)",
+            "link": "https://posturi.gov.ro/anunt/administrator-de-patrimoniu-317/"
+        }
+    }
 }

@@ -105,9 +105,9 @@
   {
     "id": "dgaspc_braila",
     "url": "https://dgaspcbraila.ro/v1/cariera/",
-    "selector": "h5.ui-blog-title a",
+    "selector": "article h2 a, article h3 a, .entry-title a",
     "attribute": "href",
-    "note": "Tracks the main post Title (permalink) to ensure 1 notification per job"
+    "note": "Child Protection - Updated generic selector"
   },
   {
     "id": "anofm_braila",
@@ -117,10 +117,10 @@
     "note": "Direct API access to ANOFM database filtered for Braila (county_id 10)"
   },
   {
-    "id": "ejobs_braila_galati",
-    "url": "https://www.ejobs.ro/locuri-de-munca/braila,galati/sort-publish",
-    "selector": "h2.job-card-content-title a",
+    "id": "posturi_gov_braila",
+    "url": "https://posturi.gov.ro/?sfid=80&_sft_judet=braila",
+    "selector": "a.permalink",
     "attribute": "href",
-    "note": "Commercial site. Tracks the main title links. Sorted by Newest."
+    "note": "Official Gov Portal - Filtered for Braila"
   }
 ]
