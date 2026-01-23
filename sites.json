@@ -23,13 +23,6 @@
     "note": "Finds the 2nd H4 header, jumps to the adjacent Div, and grabs links"
   },
   {
-    "id": "spital_braila",
-    "url": "http://www.spitalbraila.ro/cariere.html",
-    "selector": "a[href*='docs/Cariere']",
-    "attribute": "href",
-    "note": "Tracks any link that points to the internal 'docs/Cariere' folder"
-  },
-  {
     "id": "primaria_braila",
     "url": "https://www.primariabraila.ro/cariera",
     "selector": "article[data-id]",
