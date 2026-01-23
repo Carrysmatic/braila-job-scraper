@@ -3,7 +3,7 @@ name: Job Scraper
 on:
   schedule:
     # Runs every 2 hours at the 5-minute mark (to avoid the "top of the hour" rush)
-    - cron: '5 1,3,5,7,9,11,13,15,17,19,21,23 * * *'
+    - cron: '5 1,3,5,7,9,11,13,15,17,19,21 * * *'
   workflow_dispatch:
 
 permissions:
