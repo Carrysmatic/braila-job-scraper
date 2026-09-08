@@ -44357,6 +44357,10 @@
         "26883": {
             "title": "Anunț – Examen de promovare în grad profesional imediat superior celui deținut de funcționarii publici de execuție din cadrul aparatului de specialitate al Primarului Municipiului Brăila, din data de 21.09.2026, proba scrisă",
             "link": "https://www.primariabraila.ro/cariera"
+        },
+        "26978": {
+            "title": "Anunț – Concurs de promovare pentru ocuparea funcţiei contractuale de conducere vacante de director, grad II din cadrul Serviciului de Utilitate Publică SEROPLANT  Brăila, organizat în data de 28.09.2026, proba scrisă",
+            "link": "https://www.primariabraila.ro/cariera"
         }
     },
     "portal_just_galati": {
@@ -50271,6 +50275,10 @@
         "post-26883": {
             "title": "Anunț – Examen de promovare în grad profesional imediat superior celui deținut de funcționarii publici de execuție din cadrul aparatului de specialitate al Primarului Municipiului Brăila, din data de 21.09.2026, proba scrisă",
             "link": "https://www.primariabraila.ro/arhive/category/angajari"
+        },
+        "post-26978": {
+            "title": "Anunț – Concurs de promovare pentru ocuparea funcţiei contractuale de conducere vacante de director, grad II din cadrul Serviciului de Utilitate Publică SEROPLANT  Brăila, organizat în data de 28.09.2026, proba scrisă",
+            "link": "https://www.primariabraila.ro/arhive/category/angajari"
         }
     },
     "anp_derulare": {},
@@ -50971,6 +50979,14 @@
         "https://dgaspcbraila.ro/v1/wp-content/uploads/2026/09/Barem-corectare.pdf": {
             "title": "Barem corectare",
             "link": "https://dgaspcbraila.ro/v1/wp-content/uploads/2026/09/Barem-corectare.pdf"
+        },
+        "https://dgaspcbraila.ro/v1/2026/09/08/rezultat-proba-scrisa-6/": {
+            "title": "Rezultat proba scrisa",
+            "link": "https://dgaspcbraila.ro/v1/2026/09/08/rezultat-proba-scrisa-6/"
+        },
+        "https://dgaspcbraila.ro/v1/wp-content/uploads/2026/09/Rezultat-proba-scrisa.pdf": {
+            "title": "Rezultat proba scrisa",
+            "link": "https://dgaspcbraila.ro/v1/wp-content/uploads/2026/09/Rezultat-proba-scrisa.pdf"
         }
     },
     "anofm_braila": {},
